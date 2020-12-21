@@ -1,3 +1,38 @@
+## 使用immer改造Redux
+原本的Reducer  
+
+```
+const reducer = function (state, action) {
+    if (typeof state === 'undefined') state = initialState;
+    switch (action.type) {
+    case ACTIVATE_TAB:
+        return Object.assign({}, state, {
+            activeTabIndex: action.activeTabIndex
+        });
+    case WHETHER_DELETE:
+        return Object.assign({}, state, {
+            whetherDeleteCanvas: action.whetherDeleteCanvas
+        });
+    default:
+        return state;
+    }
+};
+```
+
+使用immer  
+
+```
+const reducer = produce((draft, action) => {
+        switch (action.type) {
+            case ACTIVATE_TAB:
+                draft.activeTabIndex = action.activeTabIndex;
+                break;
+            case WHETHER_DELETE:
+                draft.whetherDeleteCanvas = action.whetherDeleteCanvas;
+                break;
+}, initialState);
+```
+
 ## immutable -> 不可变数据
 - immutable: 去除引用数据类型副作用的数据的概念。每当我们创建一个被 deepClone 过的数据，新的数据进行有副作用 (side effect) 的操作都不会影响到之前的数据。 
 
