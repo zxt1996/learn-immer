@@ -14,4 +14,71 @@ Proxy 只能监听到当前层的属性访问，所以代理关系也要按需�
 
 最后，将这些拷贝值与原值整合起来，得到数据操作结果。  
 
-> Immer = Copy-on-write + Proxy
+> Immer = Copy-on-write + Proxy  
+
+![](readmeImg/readAndWrite.png)  
+
+> Now, as soon as you try to change something on a proxy (directly or through any API), it will immediately create a shallow copy(浅层复制) of the node in the source tree it is related to, and sets a flag “modified”. From now on, any future read and write to that proxy will not end up in the source tree, but in the copy. Also, any parent that was unmodified so far will be marked “modified”.
+
+### copy-on-write(写时复制) 
+> 只在数据发生改变（write）时才拷贝数据结构（copy），否则共享同一个  
+
+```
+copy === myStructure  // true
+modified !== myStructure  // true
+```
+
+### Proxy
+> 监听数据变化，进行操作拦截、重定向  
+
+```
+const data = { a: 1 };
+const proxy = new Proxy(data, {
+  set(target, key, value, receiver) {
+    console.log(`Set key = ${key}, value = ${value}`);
+    return Reflect.set(target, key, value, receiver);
+  }
+});
+
+proxy.a = 2;
+// 输出 Set key = a, value = 2
+data.a === 2  // true
+```
+
+```
+const data = { a: 1 };
+const copy = {};
+const p = new Proxy(data, {
+  set(target, key, value, receiver) {
+    // 不写回data
+    // return Reflect.set(target, key, value, receiver);
+    // 全都写到copy上
+    Reflect.set(copy, key, value, receiver);
+  }
+});
+
+p.a = 2;
+data.a === 1  // true
+copy.a === 2  // true
+```
+
+### copy-on-write + Proxy
+```
+function produce(data, producer) {
+  let copy;
+  const copyOnWrite = value => {
+    copy = Object.assign({}, value);
+  };
+
+  const proxy = new Proxy(data, {
+    set(target, key, value, receiver) {
+      // 写时复制
+      !copy && copyOnWrite(data);
+      // 全都写到copy上
+      Reflect.set(copy, key, value, copy);
+    }
+  });
+  producer(proxy);
+  return copy || data;
+}
+```
