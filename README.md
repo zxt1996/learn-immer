@@ -40,6 +40,42 @@ const reducer = produce((draft, action) => {
 }, initialState);
 ```
 
+## 改造setState
+没使用immer
+```
+this.state = {
+        user: {
+            age: 22
+            name: ''
+        }
+    }
+}
+
+onInputChange = (event: React.ChangeEvent<HTMLInputElement>)  => {
+    const now = event.target.value;
+    this.setState(
+       prevState => ({
+            user: {
+                ...prevState.user,
+                name: ''
+            }
+       })
+    )
+}
+```
+使用immer
+```
+onInputChange = (event: React.ChangeEvent<HTMLInputElement>)  => {
+    const now = event.target.value;
+    this.setState(
+        produce(draft => {
+            draft.user.name = now
+        })
+    )
+}
+```
+对于在setState中的使用，主要是如果存在嵌套数据的话，使用起来心情舒畅了，眼睛也不干了。
+
 ## immutable -> 不可变数据
 - immutable: 去除引用数据类型副作用的数据的概念。每当我们创建一个被 deepClone 过的数据，新的数据进行有副作用 (side effect) 的操作都不会影响到之前的数据。 
 
