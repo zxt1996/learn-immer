@@ -1,3 +1,10 @@
+## immer
+> Immer (German for: always) is a tiny package that allows you to work with immutable state in a more convenient way. It is based on the copy-on-write mechanism.  
+
+就想官网说的immer就是一个非常小的用来实现对不可变数据操作的包，基于**写时复制**机制实现。  
+
+之前的immutable.js也可以用来操作不可变数据，但是基本要用它内部封装的数据结构方法，主要起来复杂度较高。immer的主要方法就**produce**，使用起来就很清爽。
+
 ## 使用immer改造Redux
 原本的Reducer  
 
